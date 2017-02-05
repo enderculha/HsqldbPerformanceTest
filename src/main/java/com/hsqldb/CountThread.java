@@ -5,6 +5,10 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+/* Works every second and counts the amount of data in xdr_iucs table in DB
+ * If the value is above a threshold, it set the countFlag to true. This flag determines whether
+ * selectAndDelete method will work in InsertThread.
+ */
 public class CountThread extends Thread {
 
     public void run() {

@@ -12,18 +12,17 @@ import org.hsqldb.server.ServerAcl.AclFormatException;
 public class Test {
 
     public static int     thread_count   = 10;
-
     public static boolean countFlag      = false;
     public static int     countThreshold = 1000000;
-
     public static int     timeout        = 61;
 
     public static void main(String[] args) {
 
-        InsertThread.insert_count = Integer.parseInt(args[0]);
-        InsertThread.insert_size = Integer.parseInt(args[1]);
-        thread_count = Integer.parseInt(args[2]);
-        timeout = Integer.parseInt(args[3]);
+        InsertThread.insert_count = Integer.parseInt(args[0]);// how many times the 
+        InsertThread.insert_size = Integer.parseInt(args[1]);//size of insert sql (INSERT INTO iucs (value1, value2), (value 1, value 2)) then size=2)
+        thread_count = Integer.parseInt(args[2]);//insert thread count
+        timeout = Integer.parseInt(args[3]);//how old data will be deleted in DB.
+        
         Connection connection = null;
 
         Constants.hsqlServer = new Server();
@@ -33,7 +32,7 @@ public class Test {
         Constants.hsqlServer.setDatabasePath(0, "mem:/ender_hsqldb/testhsqldb");
 
         HsqlProperties p = new HsqlProperties();
-        p.setProperty("hsqldb.tx", "MVCC");
+        p.setProperty("hsqldb.tx", "MVCC");//there are no shared, read locks
 
         try {
             Constants.hsqlServer.setProperties(p);
@@ -54,19 +53,20 @@ public class Test {
             connection.createStatement().executeUpdate("SET DATABASE TRANSACTION CONTROL MVCC");
             connection.commit();
 
-            org.hsqldb.util.DatabaseManagerSwing.main(new String[] {"--url", Constants.url,
-                    "--noexit"});
+            //Uncomment following code to open DB GUI during execution
+            /*org.hsqldb.util.DatabaseManagerSwing.main(new String[] {"--url", Constants.url,
+                    "--noexit"});*/
 
 
             connection.prepareStatement("drop table xdr_iucs if exists;").execute();
 
+            connection.prepareStatement(Constants.create).execute(); // Create an table
 
-            connection.prepareStatement(Constants.create).execute();
-
-            connection.prepareStatement(Constants.index3).execute();
+            connection.prepareStatement(Constants.index3).execute();// Create indexes on table
+            
+            //Start Inserter threads
             for (int i = 0; i < thread_count; i++) {
                 new InsertThread("inserter" + i).start();
-
             }
 
             new CountThread().start();

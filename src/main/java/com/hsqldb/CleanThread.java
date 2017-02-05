@@ -8,6 +8,11 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * 
+ * @author enderculha
+ * Works every second, deletes the rows in database specified with a timeout value.
+ */
 public class CleanThread extends Thread {
 
     private int           timeout;
